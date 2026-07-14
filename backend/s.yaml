@@ -1,0 +1,51 @@
+# 🦉 ShopWise Backend: Serverless Devs Deployment Config (s.yaml)
+# Use this config to deploy to Alibaba Cloud Function Compute in one click.
+
+edition: 1.0.0
+name: shopwise-backend
+access: default
+
+vars:
+  region: ap-southeast-1 # Target Alibaba Cloud region (e.g. cn-shanghai, ap-southeast-1)
+  service:
+    name: shopwise-service
+    description: 'ShopWise Backend Service for Qwen Cloud Hackathon'
+
+services:
+  shopwise-api:
+    component: fc
+    actions:
+      pre-deploy:
+        - run: npm install --production
+          path: ./
+    props:
+      region: ${vars.region}
+      service: ${vars.service}
+      function:
+        name: shopwise-express-api
+        description: 'ShopWise Node.js Express API proxying DashScope requests'
+        runtime: custom.debian10
+        codeUri: ./
+        handler: index.handler
+        memorySize: 256
+        timeout: 60
+        caPort: 8080
+        environmentVariables:
+          PATH: /var/fc/lang/nodejs20/bin:/var/fc/lang/nodejs18/bin:/var/fc/lang/nodejs16/bin:/usr/local/bin:/usr/bin:/bin
+          QWEN_API_KEY: ${env(QWEN_API_KEY)}
+          QWEN_BASE_URL: ${env(QWEN_BASE_URL)}
+        customRuntimeConfig:
+          command:
+            - node
+          args:
+            - index.js
+      triggers:
+        - name: httpTrigger
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
