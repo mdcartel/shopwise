@@ -81,9 +81,16 @@ ${params.emailBody}
 Please draft a response to this email.`;
 
   // Route through the Alibaba Cloud deployed backend if URL is configured
-  if (backendUrl && backendUrl !== "your_backend_url_here") {
+  const isServer = typeof window === "undefined";
+  const useBackend = !isServer || (backendUrl && backendUrl !== "your_backend_url_here");
+
+  if (useBackend) {
     try {
-      const response = await fetch(`${backendUrl}/api/qwen/reply`, {
+      const fetchUrl = isServer 
+        ? `${backendUrl || "http://localhost:8080"}/api/qwen/reply` 
+        : `/api/qwen/reply`;
+
+      const response = await fetch(fetchUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -223,9 +230,16 @@ ${params.customerContext ? `- Customer Context Memory: ${params.customerContext}
 "${params.prompt}"`;
 
   // Route through the Alibaba Cloud deployed backend if URL is configured
-  if (backendUrl && backendUrl !== "your_backend_url_here") {
+  const isServer = typeof window === "undefined";
+  const useBackend = !isServer || (backendUrl && backendUrl !== "your_backend_url_here");
+
+  if (useBackend) {
     try {
-      const response = await fetch(`${backendUrl}/api/qwen/compose`, {
+      const fetchUrl = isServer 
+        ? `${backendUrl || "http://localhost:8080"}/api/qwen/compose` 
+        : `/api/qwen/compose`;
+
+      const response = await fetch(fetchUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -331,9 +345,16 @@ Key Guidelines:
     { role: "user", content: userMessage }
   ];
 
-  if (backendUrl && backendUrl !== "your_backend_url_here") {
+  const isServer = typeof window === "undefined";
+  const useBackend = !isServer || (backendUrl && backendUrl !== "your_backend_url_here");
+
+  if (useBackend) {
     try {
-      const response = await fetch(`${backendUrl}/api/qwen/reply`, {
+      const fetchUrl = isServer 
+        ? `${backendUrl || "http://localhost:8080"}/api/qwen/reply` 
+        : `/api/qwen/reply`;
+
+      const response = await fetch(fetchUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
