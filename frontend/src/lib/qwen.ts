@@ -87,7 +87,7 @@ Please draft a response to this email.`;
   if (useBackend) {
     try {
       const fetchUrl = isServer 
-        ? `${backendUrl || "http://localhost:8080"}/api/qwen/reply` 
+        ? `${backendUrl || "http://127.0.0.1:8080"}/api/qwen/reply` 
         : `/api/qwen/reply`;
 
       const response = await fetch(fetchUrl, {
@@ -236,7 +236,7 @@ ${params.customerContext ? `- Customer Context Memory: ${params.customerContext}
   if (useBackend) {
     try {
       const fetchUrl = isServer 
-        ? `${backendUrl || "http://localhost:8080"}/api/qwen/compose` 
+        ? `${backendUrl || "http://127.0.0.1:8080"}/api/qwen/compose` 
         : `/api/qwen/compose`;
 
       const response = await fetch(fetchUrl, {
@@ -351,7 +351,7 @@ Key Guidelines:
   if (useBackend) {
     try {
       const fetchUrl = isServer 
-        ? `${backendUrl || "http://localhost:8080"}/api/qwen/reply` 
+        ? `${backendUrl || "http://127.0.0.1:8080"}/api/qwen/reply` 
         : `/api/qwen/reply`;
 
       const response = await fetch(fetchUrl, {

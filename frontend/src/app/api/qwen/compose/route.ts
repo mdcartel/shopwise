@@ -19,9 +19,9 @@ export async function POST(request: Request) {
 
     // 1. Try to delegate to the local backend on port 8080 if it is active (local dev scenario)
     try {
-      const backendHealth = await fetch("http://localhost:8080/health", { signal: AbortSignal.timeout(800) });
+      const backendHealth = await fetch("http://127.0.0.1:8080/health", { signal: AbortSignal.timeout(800) });
       if (backendHealth.ok) {
-        const response = await fetch("http://localhost:8080/api/qwen/compose", {
+        const response = await fetch("http://127.0.0.1:8080/api/qwen/compose", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
