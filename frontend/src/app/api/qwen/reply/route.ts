@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 
-const DASHSCOPE_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -17,27 +15,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing or invalid 'messages' array" }, { status: 400 });
     }
 
-    // 1. Try to delegate to the local backend on port 8080 if it is active (local dev scenario)
-    try {
-      const backendHealth = await fetch("http://127.0.0.1:8080/health", { signal: AbortSignal.timeout(800) });
-      if (backendHealth.ok) {
-        const response = await fetch("http://127.0.0.1:8080/api/qwen/reply", {
+    // 1. Try to delegate to the configured backend URL (local or cloud)
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (backendUrl && backendUrl !== "your_backend_url_here") {
+      try {
+        const response = await fetch(`${backendUrl}/api/qwen/reply`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
+          signal: AbortSignal.timeout(4000), // Timeout for serverless safety
         });
         if (response.ok) {
           const data = await response.json();
           return NextResponse.json(data);
         }
+      } catch (e) {
+        // Backend is unreachable or returned error, fall back to self-handling
       }
-    } catch (e) {
-      // Local backend is not running or unreachable, fall back to self-handling
     }
 
-    // 2. Self-handling: read key from env (Vercel or frontend/.env)
+    // 2. Self-handling: read key and base URL from env
     const apiKey = process.env.QWEN_API_KEY || process.env.NEXT_PUBLIC_QWEN_API_KEY;
     const isDemoMode = !apiKey || apiKey === "your_qwen_api_key_here" || apiKey === "your_dashscope_api_key_here";
 
@@ -56,8 +55,12 @@ export async function POST(request: Request) {
       });
     }
 
+    // Determine the base URL: default to international compatible mode
+    const baseUrl = process.env.QWEN_BASE_URL || "https://dashscope-intl.aliyuncs.com/compatible-mode/v1";
+    const dashscopeUrl = `${baseUrl.replace(/\/$/, "")}/chat/completions`;
+
     // 3. Make direct API call to Alibaba DashScope from server side (bypassing CORS)
-    const response = await fetch(DASHSCOPE_API_URL, {
+    const response = await fetch(dashscopeUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
