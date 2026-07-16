@@ -21,14 +21,14 @@ import {
   Clock,
   ChevronLeft
 } from "lucide-react";
-import { customers, products } from "@/data/mock-data";
+import { customers, products, emails as mockEmails } from "@/data/mock-data";
 import { generateQwenEmailReply, generateQwenEmailCompose } from "@/lib/qwen";
 import { cn } from "@/lib/utils";
 
 export default function InboxClient() {
   const { data: initialEmails = [] } = useQuery({
     queryKey: ['emails-list'],
-    queryFn: () => [] as any[],
+    queryFn: () => mockEmails,
   });
 
   const [emails, setEmailList] = useState<any[]>([]);

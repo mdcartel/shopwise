@@ -19,6 +19,7 @@ import {
 import { AIRecommendationCard } from "@/components/ai/AIComponents";
 import { RevenueChart, InventoryChart } from "@/components/charts/DashboardCharts";
 import { cn, getGreeting } from "@/lib/utils";
+import { kpis as mockKpis, priorities as mockPriorities, activities as mockActivities } from "@/data/mock-data";
 
 const iconMap: Record<string, React.ComponentType<any>> = {
   DollarSign,
@@ -33,17 +34,17 @@ export default function DashboardClient() {
   // Access pre-fetched query data
   const { data: kpiList = [] } = useQuery({
     queryKey: ['kpis'],
-    queryFn: () => [] as any[], // Fallback
+    queryFn: () => mockKpis, // Fallback
   });
 
   const { data: initialPriorities = [] } = useQuery({
     queryKey: ['priorities'],
-    queryFn: () => [] as any[],
+    queryFn: () => mockPriorities,
   });
 
   const { data: initialActivities = [] } = useQuery({
     queryKey: ['activities'],
-    queryFn: () => [] as any[],
+    queryFn: () => mockActivities,
   });
 
   const [priorityList, setPriorityList] = useState(initialPriorities);

@@ -33,14 +33,15 @@ import {
 import { 
   opportunities, 
   decisions, 
-  memories 
+  memories,
+  products as mockProducts
 } from "@/data/mock-data";
 import { cn, formatCurrency } from "@/lib/utils";
 
 export default function InventoryClient() {
   const { data: initialProducts = [] } = useQuery({
     queryKey: ['products-list'],
-    queryFn: () => [] as any[],
+    queryFn: () => mockProducts,
   });
 
   const [products, setProducts] = useState<any[]>([]);

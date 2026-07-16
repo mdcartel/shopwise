@@ -26,7 +26,7 @@ import {
   Calendar,
   AlertCircle
 } from "lucide-react";
-import type { Order } from "@/data/mock-data";
+import { type Order, customers as mockCustomers, orders as mockOrders } from "@/data/mock-data";
 import { cn, formatCurrency } from "@/lib/utils";
 
 export default function CustomersClient() {
@@ -34,12 +34,12 @@ export default function CustomersClient() {
 
   const { data: initialCustomers = [] } = useQuery({
     queryKey: ['customers-list'],
-    queryFn: () => [] as any[],
+    queryFn: () => mockCustomers,
   });
 
   const { data: initialOrders = [] } = useQuery({
     queryKey: ['orders-list'],
-    queryFn: () => [] as any[],
+    queryFn: () => mockOrders,
   });
 
   const [activeTab, setActiveTab] = useState("crm");

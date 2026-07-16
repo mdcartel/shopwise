@@ -13,11 +13,12 @@ import {
 } from "lucide-react";
 import { DecisionCard } from "@/components/ai/AIComponents";
 import { cn } from "@/lib/utils";
+import { decisions as mockDecisions } from "@/data/mock-data";
 
 export default function DecisionsClient() {
   const { data: initialDecisions = [] } = useQuery({
     queryKey: ['decisions-list'],
-    queryFn: () => [] as any[],
+    queryFn: () => mockDecisions,
   });
 
   const [decisions, setDecisions] = useState<any[]>([]);

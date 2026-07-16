@@ -20,7 +20,7 @@ import { generateQwenChatResponse } from "@/lib/qwen";
 export default function ChatClient() {
   const { data: initialMessages = [] } = useQuery({
     queryKey: ['chat-history'],
-    queryFn: () => [] as any[],
+    queryFn: () => mockChatMessages,
   });
 
   const [messages, setMessages] = useState(initialMessages);

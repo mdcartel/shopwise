@@ -20,11 +20,12 @@ import {
   ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { opportunities as mockOpportunities } from "@/data/mock-data";
 
 export default function OpportunitiesClient() {
   const { data: initialOpportunities = [] } = useQuery({
     queryKey: ['opportunities-list'],
-    queryFn: () => [] as any[],
+    queryFn: () => mockOpportunities,
   });
 
   const [opportunities, setOpportunities] = useState<any[]>([]);

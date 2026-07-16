@@ -13,11 +13,12 @@ import {
 } from "lucide-react";
 import { MemoryCard } from "@/components/ai/AIComponents";
 import { cn } from "@/lib/utils";
+import { memories as mockMemories } from "@/data/mock-data";
 
 export default function MemoryClient() {
   const { data: initialMemories = [] } = useQuery({
     queryKey: ['memories-list'],
-    queryFn: () => [] as any[],
+    queryFn: () => mockMemories,
   });
 
   const [memories, setMemories] = useState<any[]>([]);
