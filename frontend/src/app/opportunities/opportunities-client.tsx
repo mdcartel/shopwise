@@ -175,7 +175,7 @@ export default function OpportunitiesClient() {
       </div>
 
       {/* Overview Metric Hub */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-card border border-border p-4 rounded-xl flex flex-col justify-between">
           <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Unresolved Signals</span>
           <div className="flex items-baseline gap-2 mt-2">
@@ -213,7 +213,7 @@ export default function OpportunitiesClient() {
         
         {/* Classification Filters (Top & Distributed) */}
         <div className="bg-card border border-border p-3.5 rounded-xl flex w-full">
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 w-full">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 w-full">
             {["all", "inventory", "bundle", "pricing", "customer", "supplier"].map((type) => {
               const count = opportunities.filter(o => (type === "all" || o.type === type) && o.status !== "dismissed").length;
               return (

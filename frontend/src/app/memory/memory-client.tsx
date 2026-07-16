@@ -141,7 +141,7 @@ export default function MemoryClient() {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <SlidersHorizontal size={14} className="text-muted-foreground shrink-0" />
           <span className="text-xs text-muted-foreground">Category:</span>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {["all", "business", "customer", "owner", "decision"].map(cat => (
               <button
                 key={cat}

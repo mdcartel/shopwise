@@ -133,7 +133,7 @@ export default function DashboardClient() {
       </div>
 
       {/* ─── KPI Cards Grid ─── */}
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {kpiList.map((kpi) => {
           const Icon = iconMap[kpi.icon] || DollarSign;
           const kpiColor = getKPIColor(kpi.title);

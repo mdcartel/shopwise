@@ -185,7 +185,7 @@ export default function CustomersClient() {
 
           {/* CRM Table */}
           <div className="rounded-xl border border-border bg-card overflow-x-auto shadow-md">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full min-w-[800px] text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-border bg-accent/20 text-muted-foreground uppercase font-bold text-[10px] tracking-wider">
                   <th className="p-4">Customer</th>
@@ -258,7 +258,7 @@ export default function CustomersClient() {
           {/* Orders Ledger Box */}
           <div className="bg-card border border-border rounded-xl shadow-md overflow-hidden flex flex-col">
             <div className="p-4 border-b border-border flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/45">
-              <div className="flex items-center gap-1.5 self-start sm:self-auto">
+              <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-auto">
                 {[
                   { id: "all", label: "All Orders", count: totalCount },
                   { id: "delayed", label: "Delayed", count: delayedCount },
@@ -293,7 +293,7 @@ export default function CustomersClient() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left text-xs">
+              <table className="w-full min-w-[900px] border-collapse text-left text-xs">
                 <thead>
                   <tr className="border-b border-border bg-accent/15 text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
                     <th className="p-4">Order / Customer</th>
@@ -455,7 +455,7 @@ export default function CustomersClient() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-card border-l border-border shadow-2xl p-6 z-50 overflow-y-auto"
+              className="fixed right-0 top-0 bottom-0 w-full sm:max-w-md bg-card border-l border-border shadow-2xl p-6 z-50 overflow-y-auto"
             >
               <div className="flex items-center justify-between pb-4 border-b border-border">
                 <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">

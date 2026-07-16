@@ -78,13 +78,13 @@ export default function Settings() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
         {/* Navigation sidebar */}
-        <div className="flex flex-col space-y-1 bg-card border border-border p-2 rounded-xl">
+        <div className="flex flex-row overflow-x-auto md:flex-col space-x-2 md:space-x-0 md:space-y-1 bg-card border border-border p-2 rounded-xl scrollbar-none">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider transition-colors",
+                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider transition-colors shrink-0",
                 activeTab === tab.id 
                   ? "bg-accent text-foreground" 
                   : "text-muted-foreground hover:bg-accent/40"

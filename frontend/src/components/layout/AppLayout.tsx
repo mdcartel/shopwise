@@ -25,7 +25,8 @@ import {
   LogOut,
   User,
   Check,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CommandPalette } from "../shared/CommandPalette";
@@ -38,9 +39,15 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const currentPath = usePathname();
 
   const [unreadEmailsCount, setUnreadEmailsCount] = useState(0);
+
+  // Auto-close mobile sidebar on path change
+  useEffect(() => {
+    setMobileSidebarOpen(false);
+  }, [currentPath]);
 
   useEffect(() => {
     const saved = localStorage.getItem("shopwise-unread-count");
@@ -90,11 +97,24 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground">
+      {/* Backdrop for mobile */}
+      {mobileSidebarOpen && (
+        <div 
+          onClick={() => setMobileSidebarOpen(false)}
+          className="fixed inset-0 bg-black/40 z-30 md:hidden animate-in fade-in duration-200"
+        />
+      )}
+
       {/* ─── SIDEBAR ─── */}
       <aside 
         className={cn(
-          "relative flex flex-col border-r border-border bg-card transition-all duration-300 ease-in-out z-30",
-          sidebarCollapsed ? "w-[68px]" : "w-[240px]"
+          "flex flex-col border-r border-border bg-card transition-all duration-300 ease-in-out z-40",
+          // Desktop positioning
+          "md:relative md:translate-x-0",
+          sidebarCollapsed ? "md:w-[68px]" : "md:w-[240px]",
+          // Mobile positioning
+          "fixed inset-y-0 left-0 w-[240px] md:w-auto",
+          mobileSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
         {/* Logo / Header */}
@@ -115,6 +135,14 @@ export function AppLayout({ children }: AppLayoutProps) {
             className="hidden md:flex h-6 w-6 items-center justify-center rounded border border-border bg-card hover:bg-accent hover:text-accent-foreground text-muted-foreground"
           >
             {sidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          </button>
+
+          {/* Close button for mobile */}
+          <button 
+            onClick={() => setMobileSidebarOpen(false)}
+            className="flex md:hidden h-6 w-6 items-center justify-center rounded border border-border bg-card hover:bg-accent hover:text-accent-foreground text-muted-foreground cursor-pointer"
+          >
+            <X size={14} />
           </button>
         </div>
 
@@ -184,7 +212,15 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* ─── MAIN CONTENT CONTAINER ─── */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="flex h-14 items-center justify-between border-b border-border bg-card/60 backdrop-blur-md px-6 z-20">
+        <header className="flex h-14 items-center justify-between border-b border-border bg-card/60 backdrop-blur-md px-4 md:px-6 z-20">
+          {/* Mobile Sidebar Hamburger Toggle */}
+          <button 
+            onClick={() => setMobileSidebarOpen(true)}
+            className="flex md:hidden h-8 w-8 items-center justify-center rounded border border-border bg-card hover:bg-accent hover:text-accent-foreground text-muted-foreground mr-3 shrink-0 cursor-pointer"
+          >
+            <Menu size={16} />
+          </button>
+
           {/* Search bar mock trigger */}
           <div className="flex items-center gap-4 flex-1 max-w-md">
             <button 

@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
+  X,
   Truck,
   Sparkles,
   TrendingDown,
@@ -44,6 +45,7 @@ export default function InventoryClient() {
 
   const [products, setProducts] = useState<any[]>([]);
   const [selectedId, setSelectedId] = useState("");
+  const [mobileInspectorOpen, setMobileInspectorOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -261,7 +263,10 @@ export default function InventoryClient() {
               return (
                 <button
                   key={p.id}
-                  onClick={() => setSelectedId(p.id)}
+                  onClick={() => {
+                    setSelectedId(p.id);
+                    setMobileInspectorOpen(true);
+                  }}
                   className={cn(
                     "w-full text-left rounded-xl border bg-card overflow-hidden hover:shadow-md transition-all duration-200 group flex flex-col justify-between cursor-pointer",
                     isSelected ? "border-primary ring-1 ring-primary" : "border-border"
@@ -316,8 +321,8 @@ export default function InventoryClient() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Consolidated Inspector Panel (1/3 width) */}
-        <div className="lg:col-span-1 h-[calc(100vh-12rem)] sticky top-6">
+        {/* RIGHT COLUMN: Consolidated Inspector Panel (1/3 width) - Desktop only */}
+        <div className="hidden lg:block lg:col-span-1 h-[calc(100vh-12rem)] sticky top-6">
           <AnimatePresence mode="wait">
             {selectedProduct ? (
               <motion.div
@@ -531,6 +536,209 @@ export default function InventoryClient() {
         </div>
 
       </div>
+
+      {/* MOBILE DRAWER INSPECTOR */}
+      <AnimatePresence>
+        {mobileInspectorOpen && selectedProduct && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileInspectorOpen(false)}
+              className="fixed inset-0 bg-black/45 z-40 lg:hidden"
+            />
+            {/* Drawer */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed right-0 top-0 bottom-0 w-full sm:max-w-md bg-card border-l border-border shadow-2xl p-6 z-50 overflow-y-auto lg:hidden animate-in slide-in-from-right duration-200"
+            >
+              <div className="flex items-center justify-between pb-4 border-b border-border">
+                <h3 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <Package size={14} />
+                  <span>Product Intelligence Sheet</span>
+                </h3>
+                <button 
+                  onClick={() => setMobileInspectorOpen(false)}
+                  className="p-1 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Visual Header */}
+              <div className="relative py-6 bg-gradient-to-br from-primary/10 to-card border-b border-border flex items-center gap-4">
+                <div className="h-16 w-16 rounded-xl bg-background border border-border/80 flex items-center justify-center text-4xl shrink-0">
+                  {selectedProduct.image}
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[9px] bg-primary/20 text-foreground px-2 py-0.5 rounded font-bold uppercase tracking-wide">
+                    {selectedProduct.category}
+                  </span>
+                  <h2 className="font-bold text-sm text-foreground truncate mt-1.5">{selectedProduct.name}</h2>
+                  <p className="text-[10px] text-muted-foreground font-mono mt-0.5">{selectedProduct.sku}</p>
+                </div>
+              </div>
+
+              {/* Details Body */}
+              <div className="space-y-5 py-5 divide-y divide-border/40 text-xs">
+                {/* Item Profile */}
+                <div className="space-y-2">
+                  <h3 className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Item Profile</h3>
+                  <p className="text-xs text-foreground leading-relaxed">
+                    {selectedProduct.description}
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-dashed border-border/40">
+                    <div>
+                      <span className="text-[9px] text-muted-foreground uppercase font-semibold">Restocking Buffer</span>
+                      <p className="text-xs font-bold text-foreground mt-0.5">{selectedProduct.predictedRunout}</p>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-muted-foreground uppercase font-semibold">AI Index Performance</span>
+                      <p className={cn(
+                        "text-xs font-bold mt-0.5 uppercase",
+                        selectedProduct.performance === "excellent" ? "text-emerald-400" : "text-blue-400"
+                      )}>
+                        {selectedProduct.performance}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sales History Chart */}
+                <div className="pt-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">7-Day Sales Volume</h3>
+                    <span className="text-[10px] text-muted-foreground font-semibold">Total: {selectedProduct.sales} units</span>
+                  </div>
+                  <div className="w-full">
+                    <ResponsiveContainer width="100%" height={120}>
+                      <AreaChart data={getSalesHistory(selectedProduct.sales)} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="salesGradMobile" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2}/>
+                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={8} tickLine={false} axisLine={false} />
+                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={8} tickLine={false} axisLine={false} />
+                        <Tooltip 
+                          contentStyle={{ backgroundColor: "hsl(var(--card))", borderColor: "hsl(var(--border))", borderRadius: "8px", fontSize: 9 }}
+                          labelStyle={{ fontWeight: "bold" }}
+                        />
+                        <Area type="monotone" dataKey="sales" stroke="hsl(var(--primary))" strokeWidth={1.5} fillOpacity={1} fill="url(#salesGradMobile)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* AI Insights (Opportunities) */}
+                <div className="pt-4 space-y-2">
+                  <h3 className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider flex items-center gap-1">
+                    <Sparkles size={10} className="text-primary-foreground" />
+                    <span>AI Insights & Warnings</span>
+                  </h3>
+                  
+                  {productOpportunities.length > 0 ? (
+                    <div className="space-y-2.5">
+                      {productOpportunities.map(o => (
+                        <div key={o.id} className="p-3 rounded-lg border border-primary/20 bg-primary/5 space-y-1">
+                          <div className="flex items-center justify-between text-[9px]">
+                            <span className={cn(
+                              "font-bold uppercase px-1.5 py-0.5 rounded",
+                              o.priority === "critical" ? "bg-red-500/10 text-red-400" : "bg-primary/20 text-foreground"
+                            )}>
+                              {o.priority}
+                            </span>
+                            <span className="text-muted-foreground font-semibold">Confidence: {o.confidence}%</span>
+                          </div>
+                          <p className="text-xs font-semibold text-foreground">{o.title}</p>
+                          <p className="text-[10px] text-muted-foreground leading-relaxed">{o.description}</p>
+                          <p className="text-[10px] text-emerald-400 font-bold pt-0.5">Impact: {o.expectedImpact}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-lg border border-border bg-accent/10 space-y-1">
+                      <div className="flex items-center gap-1 text-[9px] text-muted-foreground font-bold uppercase">
+                        <Info size={10} />
+                        <span>Stability Report</span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        Predicted demand is stable at <strong>{selectedProduct.predictedDemand}%</strong>. Safety buffers are optimal. Recommended restock lead time is {selectedProduct.predictedRunout}.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* AI Context (Memories) */}
+                <div className="pt-4 space-y-2">
+                  <h3 className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider flex items-center gap-1">
+                    <Brain size={10} className="text-purple-400" />
+                    <span>AI Context & Memory Vector</span>
+                  </h3>
+                  
+                  {productMemories.length > 0 ? (
+                    <div className="space-y-2">
+                      {productMemories.map(m => (
+                        <div key={m.id} className="p-3 rounded-lg border border-purple-500/10 bg-purple-500/[0.02] space-y-1">
+                          <div className="flex items-center justify-between text-[9px] text-purple-400 font-bold uppercase">
+                            <span>{m.type} preference</span>
+                            <span>{m.importance} priority</span>
+                          </div>
+                          <p className="text-xs font-semibold text-foreground">{m.title}</p>
+                          <p className="text-[10px] text-muted-foreground leading-relaxed">{m.summary}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] text-muted-foreground italic">No historical semantic preferences logged for this product.</p>
+                  )}
+                </div>
+
+                {/* Restock & Supplier Controls */}
+                <div className="pt-4 pb-4 space-y-3 border-b border-border/40">
+                  <h3 className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Supply Chain</h3>
+                  <div className="rounded-lg bg-accent/20 p-3 text-[11px] space-y-2 border border-border/40">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Partner Supplier:</span>
+                      <strong className="text-foreground">{selectedProduct.supplier}</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Base Unit Value:</span>
+                      <strong className="text-foreground">{formatCurrency(selectedProduct.price)}</strong>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[9px] text-muted-foreground uppercase font-semibold block">Restock Batch Size</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="number"
+                        value={reorderQty}
+                        onChange={(e) => setReorderQty(Math.max(1, parseInt(e.target.value) || 0))}
+                        className="w-20 bg-background text-xs text-foreground border border-border rounded-lg px-2 py-1.5 outline-none focus:border-primary/50 text-center"
+                      />
+                      <button
+                        onClick={() => handleReorder(selectedProduct.id, reorderQty)}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-all cursor-pointer"
+                      >
+                        <Truck size={12} />
+                        <span>Dispatch Purchase Order</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

@@ -18,7 +18,8 @@ import {
   Plus,
   RefreshCw,
   Send,
-  Clock
+  Clock,
+  ChevronLeft
 } from "lucide-react";
 import { customers, products } from "@/data/mock-data";
 import { generateQwenEmailReply, generateQwenEmailCompose } from "@/lib/qwen";
@@ -32,6 +33,7 @@ export default function InboxClient() {
 
   const [emails, setEmailList] = useState<any[]>([]);
   const [selectedId, setSelectedId] = useState("");
+  const [activeMobileView, setActiveMobileView] = useState<"list" | "detail">("list");
   const [draftText, setDraftText] = useState("");
   const [search, setSearch] = useState("");
 
@@ -303,7 +305,10 @@ export default function InboxClient() {
     >
       
       {/* ─── EMAIL LIST SIDEBAR (1/3 width) ─── */}
-      <div className="flex flex-col border-r border-border h-full bg-card/60 overflow-hidden min-h-0">
+      <div className={cn(
+        "flex flex-col border-r border-border h-full bg-card/60 overflow-hidden min-h-0",
+        activeMobileView === "detail" ? "hidden lg:flex" : "flex"
+      )}>
         
         {/* Search */}
         <div className="p-4 border-b border-border space-y-3">
@@ -319,6 +324,7 @@ export default function InboxClient() {
               onClick={() => {
                 setIsComposing(true);
                 setSelectedId("");
+                setActiveMobileView("detail");
               }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-all font-bold text-[10px] uppercase cursor-pointer"
             >
@@ -349,6 +355,7 @@ export default function InboxClient() {
                 onClick={() => {
                   setSelectedId(email.id);
                   setIsComposing(false);
+                  setActiveMobileView("detail");
                   if (email.status === "unread") {
                     setEmailList(prev => prev.map(e => {
                       if (e.id === email.id) {
@@ -432,13 +439,32 @@ export default function InboxClient() {
       </div>
 
       {/* ─── EMAIL VIEWPORT (2/3 width) ─── */}
-      <div className="lg:col-span-2 flex flex-col h-full bg-card overflow-hidden min-h-0">
+      <div className={cn(
+        "lg:col-span-2 flex flex-col h-full bg-card overflow-hidden min-h-0",
+        activeMobileView === "list" ? "hidden lg:flex" : "flex"
+      )}>
         {isComposing ? (
           <div className="flex flex-col h-full overflow-hidden">
             {/* Header */}
-            <div className="p-6 border-b border-border">
-              <h2 className="font-bold text-sm text-foreground uppercase tracking-wider">New Outbound Message</h2>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Compose a custom message or use Qwen AI to draft one using customer data context.</p>
+            <div className="p-6 border-b border-border flex flex-col gap-2">
+              <button 
+                type="button"
+                onClick={() => {
+                  setIsComposing(false);
+                  if (emails.length > 0) {
+                    setSelectedId(emails[0].id);
+                  }
+                  setActiveMobileView("list");
+                }}
+                className="flex lg:hidden items-center gap-1 text-xs text-muted-foreground hover:text-foreground cursor-pointer self-start mb-2"
+              >
+                <ChevronLeft size={16} />
+                <span>Back to Inbox</span>
+              </button>
+              <div>
+                <h2 className="font-bold text-sm text-foreground uppercase tracking-wider">New Outbound Message</h2>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Compose a custom message or use Qwen AI to draft one using customer data context.</p>
+              </div>
             </div>
 
             {/* Inputs & Form area */}
@@ -663,6 +689,7 @@ export default function InboxClient() {
                   if (emails.length > 0) {
                     setSelectedId(emails[0].id);
                   }
+                  setActiveMobileView("list");
                 }}
                 className="px-4 py-2 rounded-lg border border-border bg-card hover:bg-accent/40 text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer"
               >
@@ -682,7 +709,15 @@ export default function InboxClient() {
         ) : selectedEmail ? (
           <div className="flex flex-col h-full overflow-hidden">
             {/* Header details */}
-            <div className="p-6 border-b border-border bg-card/40">
+            <div className="p-6 border-b border-border bg-card/40 flex flex-col gap-3">
+              <button 
+                type="button"
+                onClick={() => setActiveMobileView("list")}
+                className="flex lg:hidden items-center gap-1 text-xs text-muted-foreground hover:text-foreground cursor-pointer self-start"
+              >
+                <ChevronLeft size={16} />
+                <span>Back to Inbox</span>
+              </button>
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h2 className="font-bold text-base text-foreground">{selectedEmail.subject}</h2>
