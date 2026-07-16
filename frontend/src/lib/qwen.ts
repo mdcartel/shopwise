@@ -18,6 +18,33 @@ export interface GenerateReplyParams {
 const DASHSCOPE_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
 
 /**
+ * Helper function to strip markdown symbols, asterisks, hash titles, and unnecessary quotes
+ * to keep the generated response neat, well-arranged, and professional.
+ */
+export function cleanAIResponse(text: string): string {
+  if (!text) return "";
+  let clean = text.trim();
+  
+  // Strip outer quotes if wrapped by model
+  if (clean.startsWith('"') && clean.endsWith('"')) {
+    clean = clean.slice(1, -1);
+  } else if (clean.startsWith("'") && clean.endsWith("'")) {
+    clean = clean.slice(1, -1);
+  }
+
+  // Remove bold markdown asterisks (**bold** -> bold)
+  clean = clean.replace(/\*\*(.*?)\*\*/g, "$1");
+  // Remove italic markdown asterisks (*italic* -> italic)
+  clean = clean.replace(/\*(.*?)\*/g, "$1");
+  // Remove markdown headers (#, ##, ###)
+  clean = clean.replace(/###\s+/g, "");
+  clean = clean.replace(/##\s+/g, "");
+  clean = clean.replace(/#\s+/g, "");
+
+  return clean.trim();
+}
+
+/**
  * Generates an email response using the Qwen model.
  * If the API key is not configured, it will simulate a high-quality AI reply with a demo notice.
  */
@@ -37,7 +64,7 @@ Key Guidelines:
 - Address the customer by name.
 - Sign off as "${ownerName}" from "${storeName}".
 - Output ONLY the body of the reply email. Do not include subject lines, placeholders like [Your Name], or metadata.
-- Do NOT use Markdown formatting (such as asterisks ** for bolding, or # for headings) or unnecessary symbols. Output clean, plain text suitable for direct email sending.
+- Do NOT use Markdown formatting (NEVER use asterisks like ** or # for headings) or unnecessary symbols. Output completely clean, plain, and professional text suitable for direct email sending.
 
 Context about the customer:
 - Name: ${params.customerName}
@@ -70,7 +97,7 @@ Please draft a response to this email.`;
       }
 
       const data = await response.json();
-      return data.reply;
+      return cleanAIResponse(data.reply);
     } catch (error) {
       console.error("Backend Qwen API error:", error);
       throw error;
@@ -155,7 +182,7 @@ ${storeName}`;
       throw new Error("No choices returned from Qwen API");
     }
 
-    return reply.trim();
+    return cleanAIResponse(reply);
   } catch (error: any) {
     console.error("Qwen API error:", error);
     throw new Error(`Direct Qwen API call failed: ${error.message}. Note: Browser security (CORS) blocks direct API calls to DashScope from frontend. Please use the backend URL for production/real API calls.`);
@@ -185,7 +212,7 @@ Key Guidelines:
 - Address the customer by name.
 - Sign off as "${ownerName}" from "${storeName}".
 - Output ONLY the body of the outbound email. Do not include subject lines or placeholders like [Your Name].
-- Do NOT use Markdown formatting (such as asterisks ** for bolding, or # for headings) or unnecessary symbols. Output clean, plain text suitable for direct email sending.
+- Do NOT use Markdown formatting (NEVER use asterisks like ** or # for headings) or unnecessary symbols. Output completely clean, plain, and professional text suitable for direct email sending.
 
 Context about the customer:
 - Name: ${params.customerName}
@@ -212,7 +239,7 @@ ${params.customerContext ? `- Customer Context Memory: ${params.customerContext}
       }
 
       const data = await response.json();
-      return data.reply;
+      return cleanAIResponse(data.reply);
     } catch (error) {
       console.error("Backend Qwen Compose API error:", error);
       throw error;
@@ -271,7 +298,7 @@ ${params.customerContext ? `- Customer Context Memory: ${params.customerContext}
       throw new Error("No choices returned from Qwen API");
     }
 
-    return reply.trim();
+    return cleanAIResponse(reply);
   } catch (error: any) {
     console.error("Qwen API error in compose:", error);
     throw new Error(`Direct Qwen API call failed: ${error.message}. Note: Browser security (CORS) blocks direct API calls to DashScope from frontend. Please use the backend URL for production/real API calls.`);
@@ -295,7 +322,7 @@ Your job is to answer queries from the store owner, "${ownerName}", regarding st
 
 Key Guidelines:
 - Adopt a professional, friendly, and highly operational tone.
-- Highlight metrics, order names, or opportunities using bold formatting.
+- Do NOT use Markdown formatting or symbols (such as asterisks ** for bolding, or # for headings). Output completely clean, plain, and professional text with clean lists and paragraphs.
 - Draw insights from standard store data (e.g. Leather Wallets are running low, David/Sarah/Lisa have unread emails, Coffee Mug + Notebook is a potential bundle).`;
 
   const messages = [
@@ -320,7 +347,7 @@ Key Guidelines:
       }
 
       const data = await response.json();
-      return data.reply;
+      return cleanAIResponse(data.reply);
     } catch (error) {
       console.error("Backend Qwen Chat API error:", error);
       throw error;
@@ -352,7 +379,8 @@ Key Guidelines:
       }
 
       const data = await response.json();
-      return data.choices?.[0]?.message?.content?.trim() || "";
+      const content = data.choices?.[0]?.message?.content || "";
+      return cleanAIResponse(content);
     } catch (error: any) {
       console.error("Client Qwen Chat API error:", error);
       throw new Error(`Direct Qwen API call failed: ${error.message}. Note: Browser security (CORS) blocks direct API calls to DashScope from frontend. Please use the backend URL for production/real API calls.`);
@@ -365,27 +393,27 @@ Key Guidelines:
   if (text.includes("focus") || text.includes("today")) {
     return `Based on current store activity, here are the top items requiring your focus:
 
-1. **Unread customer emails** (3 high-priority) — David, Sarah, and Lisa have pending questions. Drafts are generated in the Inbox.
-2. **Inventory Reorder** — Leather Wallets are running out in 5 days. Supplier Premium Leather Co. has a 7-day turnaround.
-3. **New opportunity** — Suggest creating a 'Coffee Mug + Notebook' bundle. Co-purchase rate is 34%.`;
+1. Unread customer emails (3 high-priority) — David, Sarah, and Lisa have pending questions. Drafts are generated in the Inbox.
+2. Inventory Reorder — Leather Wallets are running out in 5 days. Supplier Premium Leather Co. has a 7-day turnaround.
+3. New opportunity — Suggest creating a 'Coffee Mug + Notebook' bundle. Co-purchase rate is 34%.`;
   }
   
   if (text.includes("opportunity") || text.includes("opportunities")) {
     return `I've detected 3 high-impact opportunities today:
 
-- **Inventory Reorders (+ $575/wk protected):** Reorder Leather Wallets & Bamboo Cutting Boards.
-- **Upsell bundle (+ $890/mo):** Coffee Mug + Notebook.
-- **Pricing Optimizer (+ $378/mo):** Ceramic Planter from $34.99 to $36.99 (high margin index).`;
+- Inventory Reorders (+ $575/wk protected): Reorder Leather Wallets & Bamboo Cutting Boards.
+- Upsell bundle (+ $890/mo): Coffee Mug + Notebook.
+- Pricing Optimizer (+ $378/mo): Ceramic Planter from $34.99 to $36.99 (high margin index).`;
   }
   
   if (text.includes("performance") || text.includes("week")) {
     return `Weekly store summary (June 21 - June 27):
 
-- **Revenue:** $31,585 (+12.5% vs previous week)
-- **Conversion Rate:** 3.4% (+0.2%)
-- **Total Orders:** 289 orders
-- **Average Order Value (AOV):** $109.29
-- **Top category:** Kitchen accessories & Stationery Journals.`;
+- Revenue: $31,585 (+12.5% vs previous week)
+- Conversion Rate: 3.4% (+0.2%)
+- Total Orders: 289 orders
+- Average Order Value (AOV): $109.29
+- Top category: Kitchen accessories & Stationery Journals.`;
   }
 
   return `I'm analyzing your store data now. ShopWise is calculating sales velocity, pending orders, and search metrics. Ask me about today's focus, opportunities, or recent performance!`;
