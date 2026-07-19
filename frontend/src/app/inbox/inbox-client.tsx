@@ -94,10 +94,10 @@ export default function InboxClient() {
   // Initialize draft when selecting an email
   React.useEffect(() => {
     if (selectedEmail) {
-      setDraftText("");
+      setDraftText(selectedEmail.suggestedReply || "");
       setApiError(null);
     }
-  }, [selectedId, selectedEmail]);
+  }, [selectedId]);
 
   // Sync unread count to layout side panel badge dynamically
   React.useEffect(() => {
@@ -855,7 +855,7 @@ export default function InboxClient() {
                     className="px-3 py-2 rounded-lg border border-border bg-card hover:bg-accent/40 text-xs font-semibold text-foreground flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                   >
                     <Sparkles size={13} className="text-primary-foreground animate-pulse" />
-                    <span>Ask Co-Pilot to Draft</span>
+                    <span>{selectedEmail.suggestedReply ? "Regenerate with AI" : "Ask Co-Pilot to Draft"}</span>
                   </button>
 
                   <div className="flex items-center gap-2">
